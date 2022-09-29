@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# test
+/tests/
+# venv虚拟环境
+/venv/
+# idea
+.idea/
+
+.DS_Store
