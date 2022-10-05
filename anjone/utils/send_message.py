@@ -55,13 +55,13 @@ class Message(object):
             req.SignName = SignName
             req.TemplateId = TemplateId
             # 手机号
-            req.PhoneNumberSet = ['+86'+phone]
+            req.PhoneNumberSet = ['+86' + phone]
             # 验证码
             code = ''.join(get_random_str())
             req.TemplateParamSet = [code]
             # 缓存
             # todo 设置过期时间
-            cache.set(phone, code)
+            cache.set(phone, code, timeout=5 * 60)
             # 获取响应
             resp = client.SendSms(req)
             print(resp.to_json_string(indent=2))

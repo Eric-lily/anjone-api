@@ -31,6 +31,7 @@ def set_password():
         raise Exceptions.ParameterNullException
     return user_service.set_password(phone, password)
 
+
 @user_bp.route('/login', methods=['POST'])
 def login():
     phone = request.form['phone']

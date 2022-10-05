@@ -2,16 +2,16 @@ import json
 
 
 class response:
-    def __init__(self, code, msg, data):
+    def __init__(self, code, message, data):
         self.code = code
-        self.msg = msg
+        self.message = message
         self.data = data
 
 
 class error_response:
-    def __init__(self, code, msg):
+    def __init__(self, code, message):
         self.code = code
-        self.msg = msg
+        self.message = message
 
 
 def create_success(data):
