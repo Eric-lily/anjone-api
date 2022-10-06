@@ -14,6 +14,11 @@ class error_response:
         self.message = message
 
 
+class NotLogin:
+    code = '1'
+    message = '用户未登录'
+
+
 def create_success(data):
     return json.dumps(response(0, 'success', data).__dict__, ensure_ascii=False), 200, \
            {'Content-Type': 'application/json; charset=utf-8'}

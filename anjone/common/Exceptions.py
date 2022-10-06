@@ -8,7 +8,7 @@ from anjone.common import Response
 
 class ParameterNullException(werkzeug.exceptions.HTTPException):
     code = '11',
-    description = 'Parameter is Null'
+    description = 'Parameter Exception'
 
 
 def configure_exceptions(app):

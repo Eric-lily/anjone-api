@@ -1,7 +1,7 @@
 import psutil
 
 from anjone.common import Response
-from anjone.models.vo.DiskUsage import DiskUsage
+from anjone.models.vo.DiskUsageVo import DiskUsage
 
 G = 1024 * 1024 * 1024
 

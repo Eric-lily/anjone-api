@@ -1,5 +1,5 @@
 class DiskUsage:
-    def __init__(self, total=None, free = None, percent = None):
+    def __init__(self, total=None, free=None, percent=None):
         self.total = total
         self.free = free
         self.percent = percent

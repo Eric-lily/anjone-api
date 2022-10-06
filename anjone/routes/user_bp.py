@@ -1,6 +1,10 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, session
+from werkzeug.datastructures import ImmutableMultiDict
 
-from anjone.common import Exceptions
+from anjone.common import Exceptions, Response
+from anjone.common.Exceptions import ParameterNullException
+from anjone.common.Response import NotLogin
+from anjone.models.validate.UserInfoVal import UserInfoVal
 from anjone.service import user_service
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
@@ -39,3 +43,24 @@ def login():
     if (not phone) or (not password):
         raise Exceptions.ParameterNullException
     return user_service.login(phone, password)
+
+
+@user_bp.route('/reset_info', methods=['POST'])
+def reset_info():
+    username = session.get('username')
+    if not username:
+        return Response.create_error(NotLogin.code, NotLogin.message)
+    userinfo = request.get_json()
+    # 表单验证，这里要使用ImmutableMultiDict封装dict
+    if not UserInfoVal(ImmutableMultiDict(userinfo)).validate():
+        raise ParameterNullException
+    return user_service.reset_info(userinfo, username)
+
+
+@user_bp.route('/get_code', methods=['POST'])
+def get_code():
+    username = session.get('username')
+    if not username:
+        return Response.create_error(NotLogin.code, NotLogin.message)
+    phone = request.form['phone']
+    return user_service.get_code(phone)
