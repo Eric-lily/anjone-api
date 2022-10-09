@@ -1,18 +1,17 @@
 import json
 
-from flask import session, jsonify
+from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from anjone.common import Response
+from anjone.common.Constant import default_admin_name, root_username
 from anjone.database import mysql_db_session, db_session, engine
-from anjone.models.sqlite.LocalUser import LocalUser
 from anjone.models.mysql.User import User
+from anjone.models.sqlite.LocalUser import LocalUser
+from anjone.models.vo.UserInfoAndDevVo import UserInfoAndDevVo
 from anjone.models.vo.UserInfoVo import UserInfoVo
 from anjone.utils.cache import cache
 from anjone.utils.send_message import Message
-
-default_admin_name = 'admin'
-root_username = 'root'
 
 
 def register(phone):
@@ -50,13 +49,16 @@ def set_password(phone, password):
 
 def login(phone, password):
     user = LocalUser.query.filter(LocalUser.phone == phone).first()
-    # todo 加密处理
+    # 加密处理
     if (not user) or not check_password_hash(user.password, password):
         return Response.create_error(1, "用户名或密码错误")
     # 存到session中
     session['username'] = user.username
     user_info_vo = UserInfoVo(user.username, user.phone, user.avatar, user.role, user.create_time)
-    return Response.create_success(user_info_vo.to_json())
+    # todo 设备信息虚拟，之后需要进行补充
+    devs = [{'dev': 'HDC-202-0001', 'time': '2022-9-16'}]
+    uer_info_and_dev_vo = UserInfoAndDevVo(user_info_vo, devs)
+    return Response.create_success(uer_info_and_dev_vo.to_json())
 
 
 def reset_info(user_info, username):

@@ -1,8 +1,11 @@
+from anjone.common.Constant import AVATAR_URL
+
+
 class UserInfoVo:
     def __init__(self, username=None, phone=None, avatar=None, role=None, create_time=None):
         self.username = username
         self.phone = phone
-        self.avatar = avatar
+        self.avatar = AVATAR_URL + avatar
         self.role = role
         self.create_time = create_time.strftime('%Y-%m-%d %H:%M:%S')
 

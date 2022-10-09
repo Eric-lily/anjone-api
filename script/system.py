@@ -4,7 +4,7 @@ import queue
 
 import psutil
 import websockets
-from websockets.exceptions import ConnectionClosedError
+from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 
 cpu_queue = queue.Queue(maxsize=14)
 men_queue = queue.Queue(maxsize=14)
@@ -35,7 +35,6 @@ async def men_usage():
 
 
 # 硬盘使用率
-
 
 
 # 测网速
@@ -74,8 +73,11 @@ async def system_data(websocket, path):
 		try:
 			await websocket.send(json.dumps(result))
 		except ConnectionClosedError:
-			print('连接已断开')
-		await asyncio.sleep(3)
+			pass
+		except ConnectionClosedOK:
+			pass
+		finally:
+			await asyncio.sleep(3)
 
 
 start_server = websockets.serve(system_data, '0.0.0.0', 8080)
