@@ -26,7 +26,7 @@ async def notice_service(websocket, path):
         except ConnectionClosedOK:
             pass
         finally:
-            await asyncio.sleep(60)
+            await asyncio.sleep(3)
 
 
 start_server = websockets.serve(notice_service, '0.0.0.0', 8081)

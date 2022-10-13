@@ -4,7 +4,7 @@ from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from anjone.common import Response
-from anjone.common.Constant import default_admin_name, root_username
+from anjone.common.Constant import default_admin_name, root_username, default_avatar
 from anjone.database import mysql_db_session, db_session, engine
 from anjone.models.mysql.User import User
 from anjone.models.sqlite.LocalUser import LocalUser
@@ -40,7 +40,7 @@ def set_password(phone, password):
     # mysql_db_session.add_all([user1,user2])
     # 将用户账号密码信息存在本地
     # todo 事务管理
-    local_user = LocalUser(root_username, hash_password, phone, 'https://xxx.jpg', default_admin_name)
+    local_user = LocalUser(root_username, hash_password, phone, default_avatar, default_admin_name)
     db_session.add(local_user)
     db_session.commit()
 

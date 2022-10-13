@@ -22,6 +22,7 @@ def get_disk_usage():
 
 
 def get_dev_info():
+    # todo 从驱动层获得硬件信息
     dev_info = DevInfo.query.all()
     if len(dev_info) == 0:
         return Response.create_error('1', '设备信息暂无')
@@ -29,6 +30,7 @@ def get_dev_info():
 
 
 def get_version():
+    # todo 从驱动层获得版本
     version_info = VersionInfo.query.all()
     if len(version_info) == 0:
         return Response.create_error('1', '版本信息暂无')
@@ -36,6 +38,7 @@ def get_version():
 
 
 def get_address():
+    # todo 网络信息从驱动层获得
     address_data = {
         'mac': '50:E5:49:3A:EA:90',
         'ipv4': '192.168.100.107',
