@@ -1,0 +1,9 @@
+psutil~=5.9.2
+pysmb~=1.2.8
+Authlib~=1.1.0
+Flask~=2.1.2
+Werkzeug~=2.2.2
+SQLAlchemy~=1.4.41
+WTForms~=3.0.1
+websockets~=10.3
+paramiko~=2.11.0
