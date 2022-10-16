@@ -1,5 +1,7 @@
 import json
 
+from flask import make_response
+
 
 class response:
     def __init__(self, code, message, data):
@@ -21,7 +23,8 @@ class NotLogin:
 
 def create_success(data):
     return json.dumps(response(0, 'success', data).__dict__, ensure_ascii=False), 200, \
-           {'Content-Type': 'application/json; charset=utf-8'}
+           {'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Expose-Headers': 'Authorization'}
 
 
 def create_error(code, msg):

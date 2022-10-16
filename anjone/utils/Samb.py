@@ -1,9 +1,31 @@
+import base64
 import io
 import os
 
 from smb.SMBConnection import SMBConnection
 
+from anjone.utils.time_util import format_time
+
 SambService = {}
+
+
+def reset_info(i):
+    folder = {
+        'filename': i.filename,
+        'file_size': i.file_size,
+        'read_only': i.isReadOnly,
+        'is_dir': i.isDirectory,
+        'create_time': format_time(i.create_time),
+        'last_access_time': format_time(i.last_access_time),
+        'last_write_time': format_time(i.last_write_time),
+    }
+    return folder
+
+
+def reset_folders(folders):
+    del folders[0]
+    del folders[0]
+    return folders
 
 
 class Samb:
@@ -35,8 +57,9 @@ class Samb:
         folders = self.conn.listPath(self.folder, '/')
         self.current_folder = '/'
         for i in folders:
-            folder_list.append(i.filename)
-        return folder_list
+            folder = reset_info(i)
+            folder_list.append(folder)
+        return reset_folders(folder_list)
 
     def get_current_files(self):
         return self.conn.listPath(self.folder, self.current_folder)
@@ -46,23 +69,34 @@ class Samb:
         self.current_folder = self.current_folder + dirname + '/'
         folders = self.conn.listPath(self.folder, self.current_folder)
         for i in folders:
-            folder_list.append(i.filename)
-        return folder_list
+            folder = reset_info(i)
+            folder_list.append(folder)
+        return reset_folders(folder_list)
+
+    def enter_abs_file(self, filepath):
+        folder_list = []
+        self.current_folder = filepath + '/'
+        folders = self.conn.listPath(self.folder, filepath + '/')
+        for i in folders:
+            folder = reset_info(i)
+            folder_list.append(folder)
+        return reset_folders(folder_list)
 
     def back_dir(self):
         # 截取掉最后一个文件夹
         index = self.current_folder.rfind(r'/', 0, -1)
         if index == -1:
             return False
-        self.current_folder = self.current_folder[0: index+1]
+        self.current_folder = self.current_folder[0: index + 1]
         folder_list = []
         folders = self.get_current_files()
         for i in folders:
-            folder_list.append(i.filename)
-        return folder_list
+            folder = reset_info(i)
+            folder_list.append(folder)
+        return reset_folders(folder_list)
 
     def get_image_base64(self, image_name):
         with io.BytesIO() as file:
-            self.conn.retrieveFile(self.folder, os.path.join('/photos/', image_name), file)
+            self.conn.retrieveFile(self.folder, os.path.join(self.current_folder, image_name), file)
             file.seek(0)
-            print(file.read())
+            return base64.b64encode(file.read())

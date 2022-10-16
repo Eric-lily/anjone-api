@@ -1,6 +1,6 @@
 import json
 
-from flask import session
+from flask import session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from anjone.common import Response
@@ -12,6 +12,7 @@ from anjone.models.vo.UserInfoAndDevVo import UserInfoAndDevVo
 from anjone.models.vo.UserInfoVo import UserInfoVo
 from anjone.utils.cache import cache
 from anjone.utils.send_message import Message
+from anjone.utils.token import generate_token
 
 
 def register(phone):
@@ -53,12 +54,15 @@ def login(phone, password):
     if (not user) or not check_password_hash(user.password, password):
         return Response.create_error(1, "用户名或密码错误")
     # 存到session中
-    session['username'] = user.username
+    token = generate_token(username=user.username)
     user_info_vo = UserInfoVo(user.username, user.phone, user.avatar, user.role, user.create_time)
     # todo 设备信息虚拟，之后需要进行补充
     devs = [{'dev': 'HDC-202-0001', 'time': '2022-9-16'}]
     uer_info_and_dev_vo = UserInfoAndDevVo(user_info_vo, devs)
-    return Response.create_success(uer_info_and_dev_vo.to_json())
+    # 在响应头上加上token
+    resp = make_response(Response.create_success(uer_info_and_dev_vo.to_json()))
+    resp.headers['Authorization'] = token
+    return resp
 
 
 def reset_info(user_info, username):
@@ -86,11 +90,12 @@ def reset_info(user_info, username):
     if user_info['password'] and len(user_info['password']) > 0:
         user.password = generate_password_hash(user_info['password'])
     db_session.commit()
-    # 重设session
-    session.pop('username')
-    session['username'] = user.username
+    # 重设token
+    token = generate_token(username)
     user_info = UserInfoVo(user.username, user.phone, user.avatar, user.role, user.create_time)
-    return Response.create_success(user_info.to_json())
+    resp = make_response(Response.create_success(user_info.to_json()))
+    resp.headers['Authorization'] = token
+    return resp
 
 
 def get_code(phone):

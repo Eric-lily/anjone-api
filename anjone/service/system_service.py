@@ -1,3 +1,5 @@
+import uuid
+
 import psutil
 
 from anjone.common import Response
@@ -39,15 +41,46 @@ def get_version():
 
 def get_address():
     # todo 网络信息从驱动层获得
+    ip_data = get_ip('WLAN')
     address_data = {
-        'mac': '50:E5:49:3A:EA:90',
-        'ipv4': '192.168.100.107',
-        'ipv4_gateway': '192.168.100.1',
-        'ipv4_dns': '114.114.114.114',
-        'ipv4_extract': '113.246.132.18',
-        'ipv6': None,
-        'ipv6_gateway': None,
+        'mac': ip_data['mac'],
+        'ipv4': ip_data['ipv4'],
+        'ipv4_gateway': ip_data['ipv4_gateway'],
+        'ipv4_dns': None,
+        'ipv4_extract': None,
+        'ipv6': ip_data['ipv6'],
+        'ipv6_gateway': ip_data['ipv6_gateway'],
         'ipv6_dns': None,
         'ipv6_extract': None
     }
     return Response.create_success(address_data)
+
+
+# 获取ipv4地址
+def get_ip(adapter):
+    dic = psutil.net_if_addrs()
+    snicList = dic[adapter]
+    mac = None
+    ipv4 = None
+    ipv4_mask = None
+    ipv4_gateway = None
+    ipv6 = None
+    for snic in snicList:
+        if snic.family.name in {'AF_LINK', 'AF_PACKET'}:
+            mac = snic.address
+        elif snic.family.name == 'AF_INET':
+            ipv4 = snic.address
+            ipv4_mask = snic.netmask
+        elif snic.family.name == 'AF_INET6':
+            ipv6 = snic.address
+    if ipv4:
+        index = ipv4.rfind(r'.')
+        ipv4_gateway = ipv4[0:index] + '.1'
+    return {
+        'mac': mac,
+        'ipv4': ipv4,
+        'ipv4_gateway': ipv4_gateway,
+        'ipv4_mask': ipv4_mask,
+        'ipv6': ipv6,
+        'ipv6_gateway': None,
+    }

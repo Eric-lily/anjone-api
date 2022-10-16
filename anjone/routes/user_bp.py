@@ -6,6 +6,7 @@ from anjone.common.Exceptions import ParameterNullException
 from anjone.common.Response import NotLogin
 from anjone.models.validate.UserInfoVal import UserInfoVal
 from anjone.service import user_service
+from anjone.utils.token import get_username, login_required
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 
@@ -46,10 +47,9 @@ def login():
 
 
 @user_bp.route('/reset_info', methods=['POST'])
+@login_required
 def reset_info():
-    username = session.get('username')
-    if not username:
-        return Response.create_error(NotLogin.code, NotLogin.message)
+    username = get_username()
     userinfo = request.get_json()
     # 表单验证，这里要使用ImmutableMultiDict封装dict
     if not UserInfoVal(ImmutableMultiDict(userinfo)).validate():
@@ -58,9 +58,7 @@ def reset_info():
 
 
 @user_bp.route('/get_code', methods=['POST'])
+@login_required
 def get_code():
-    username = session.get('username')
-    if not username:
-        return Response.create_error(NotLogin.code, NotLogin.message)
     phone = request.form['phone']
     return user_service.get_code(phone)

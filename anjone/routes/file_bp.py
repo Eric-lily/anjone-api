@@ -5,6 +5,7 @@ from anjone.common import Response
 from anjone.common.Constant import AVATAR_PATH
 from anjone.common.Response import NotLogin
 from anjone.service import file_service
+from anjone.utils.token import get_username, login_required
 
 file_bp = Blueprint('file', __name__, url_prefix='/file')
 
@@ -21,10 +22,9 @@ def user_avatar(filename):
 
 
 @file_bp.route('/avatar/upload', methods=['POST'])
+@login_required
 def upload_avatar():
-    username = session.get('username')
-    if not username:
-        return Response.create_error(NotLogin.code, NotLogin.message)
+    username = get_username()
     avatar = request.files['avatar']
     # 判断图片格式
     if avatar and allowed_files(AVATAR_FILES, avatar.filename):

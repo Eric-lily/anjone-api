@@ -14,12 +14,16 @@ def create_app(config_name=None):
     app = Flask(__name__, instance_relative_config=True)
     app.wsgi_app = ProxyFix(app.wsgi_app)
     # 配置跨域
-    CORS(app, supports_credentials=True)
+    CORS(app, supports_credentials=True, origins='*')
 
     configure_app(app, config_name)
     configure_blueprints(app)
     configure_exceptions(app)
     configure_cache(app)
+
+    app.config.update(
+        SESSION_COOKIE_HTTPONLY=False
+    )
 
     # 初始化数据库
     @app.cli.command('init-db')
