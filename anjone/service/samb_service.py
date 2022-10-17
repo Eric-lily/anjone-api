@@ -1,7 +1,5 @@
-import io
-
-from anjone.utils.Samb import Samb, SambService
 from anjone.common import Response
+from anjone.utils.Samb import Samb, SambService
 
 IMAGE_TYPES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
 

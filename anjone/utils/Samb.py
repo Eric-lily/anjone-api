@@ -4,22 +4,9 @@ import os
 
 from smb.SMBConnection import SMBConnection
 
-from anjone.utils.time_util import format_time
+from anjone.models.vo.FileInfoVo import FileInfoVo
 
 SambService = {}
-
-
-def reset_info(i):
-    folder = {
-        'filename': i.filename,
-        'file_size': i.file_size,
-        'read_only': i.isReadOnly,
-        'is_dir': i.isDirectory,
-        'create_time': format_time(i.create_time),
-        'last_access_time': format_time(i.last_access_time),
-        'last_write_time': format_time(i.last_write_time),
-    }
-    return folder
 
 
 def reset_folders(folders):
@@ -57,7 +44,7 @@ class Samb:
         folders = self.conn.listPath(self.folder, '/')
         self.current_folder = '/'
         for i in folders:
-            folder = reset_info(i)
+            folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
         return reset_folders(folder_list)
 
@@ -69,7 +56,7 @@ class Samb:
         self.current_folder = self.current_folder + dirname + '/'
         folders = self.conn.listPath(self.folder, self.current_folder)
         for i in folders:
-            folder = reset_info(i)
+            folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
         return reset_folders(folder_list)
 
@@ -78,7 +65,7 @@ class Samb:
         self.current_folder = filepath + '/'
         folders = self.conn.listPath(self.folder, filepath + '/')
         for i in folders:
-            folder = reset_info(i)
+            folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
         return reset_folders(folder_list)
 
@@ -91,7 +78,7 @@ class Samb:
         folder_list = []
         folders = self.get_current_files()
         for i in folders:
-            folder = reset_info(i)
+            folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
         return reset_folders(folder_list)
 
