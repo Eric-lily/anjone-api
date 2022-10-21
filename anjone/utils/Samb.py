@@ -51,6 +51,14 @@ class Samb:
     def get_current_files(self):
         return self.conn.listPath(self.folder, self.current_folder)
 
+    def get_current_files_info(self):
+        folders = self.conn.listPath(self.folder, self.current_folder)
+        folder_list = []
+        for i in folders:
+            folder = FileInfoVo(i).to_json()
+            folder_list.append(folder)
+        return reset_folders(folder_list)
+
     def enter_dir(self, dirname):
         folder_list = []
         self.current_folder = self.current_folder + dirname + '/'
@@ -63,7 +71,7 @@ class Samb:
     def enter_abs_file(self, filepath):
         folder_list = []
         self.current_folder = filepath + '/'
-        folders = self.conn.listPath(self.folder, filepath + '/')
+        folders = self.conn.listPath(self.folder, self.current_folder)
         for i in folders:
             folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
@@ -87,3 +95,23 @@ class Samb:
             self.conn.retrieveFile(self.folder, os.path.join(self.current_folder, image_name), file)
             file.seek(0)
             return base64.b64encode(file.read())
+
+    def get_bytes(self, filename):
+        with io.BytesIO() as file:
+            self.conn.retrieveFile(self.folder, os.path.join(self.current_folder, filename), file)
+            file.seek(0)
+            return file.read()
+
+    def upload_file(self, file, filename):
+        try:
+            self.conn.storeFile(self.folder, os.path.join(self.current_folder, filename), file)
+            return True
+        except Exception:
+            return False
+
+    def delete_file(self, filename):
+        try:
+            self.conn.deleteFiles(self.folder, self.current_folder + filename)
+            return True
+        except Exception:
+            return False

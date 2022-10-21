@@ -34,9 +34,6 @@ async def men_usage():
 		await asyncio.sleep(3)
 
 
-# 硬盘使用率
-
-
 # 测网速
 async def net_io():
 	global recv_q

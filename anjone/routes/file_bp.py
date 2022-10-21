@@ -1,15 +1,16 @@
-from flask import Blueprint, request, session
+from flask import Blueprint, request
 from flask import Response as Resp
 
 from anjone.common import Response
 from anjone.common.Constant import AVATAR_PATH
-from anjone.common.Response import NotLogin
 from anjone.service import file_service
 from anjone.utils.token import get_username, login_required
 
 file_bp = Blueprint('file', __name__, url_prefix='/file')
 
-AVATAR_FILES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
+IMAGE_FILES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
+AUDIO_FILES = ['mp3']
+VIDEO_FILES = ['mp4']
 
 
 # 文件映射
@@ -27,7 +28,7 @@ def upload_avatar():
     username = get_username()
     avatar = request.files['avatar']
     # 判断图片格式
-    if avatar and allowed_files(AVATAR_FILES, avatar.filename):
+    if avatar and allowed_files(IMAGE_FILES, avatar.filename):
         return file_service.upload_avatar(avatar, username)
     return Response.create_error('1', '文件为空, 或者格式有误')
 

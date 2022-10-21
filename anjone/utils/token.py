@@ -47,3 +47,11 @@ def get_username():
     key = current_app.config['SECRET_KEY']
     data = jwt.decode(token, key)
     return data['username']
+
+
+# 从parameter中获得token
+def get_username_from_parameter():
+    token = request.args.get('token')
+    if token and validate_token(token):
+        return validate_token(token)
+    return Response.create_error(NotLogin.code, NotLogin.message)
