@@ -1,9 +1,6 @@
-import uuid
-
 import psutil
 
 from anjone.common import Response
-from anjone.database import db_session
 from anjone.models.sqlite.DevInfo import DevInfo
 from anjone.models.sqlite.VersionInfo import VersionInfo
 from anjone.models.vo.DiskUsageVo import DiskUsage

@@ -1,16 +1,20 @@
 import json
 
-from flask import session, make_response
+from flask import make_response, request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from anjone.common import Response
 from anjone.common.Constant import default_admin_name, root_username, default_avatar
+from anjone.common.Response import NotLogin
 from anjone.database import mysql_db_session, db_session, engine
 from anjone.models.mysql.User import User
 from anjone.models.sqlite.LocalUser import LocalUser
+from anjone.models.sqlite.LoginLog import LoginLog
+from anjone.models.vo.LoginLogVo import LoginLogVo
 from anjone.models.vo.UserInfoAndDevVo import UserInfoAndDevVo
 from anjone.models.vo.UserInfoVo import UserInfoVo
 from anjone.utils.cache import cache
+from anjone.utils.common_util import get_login_dev
 from anjone.utils.send_message import Message
 from anjone.utils.token import generate_token
 
@@ -50,9 +54,14 @@ def set_password(phone, password):
 
 def login(phone, password):
     user = LocalUser.query.filter(LocalUser.phone == phone).first()
-    # 加密处理
     if (not user) or not check_password_hash(user.password, password):
         return Response.create_error(1, "用户名或密码错误")
+    # 将用户登录写入日志
+    # todo 此处的ip地址并不真实，需要考虑反向代理的情况 request.remote_addr
+    dev = get_login_dev()
+    login_log = LoginLog(user.phone, dev, request.remote_addr, '浏览器')
+    db_session.add(login_log)
+    db_session.commit()
     # 存到session中
     token = generate_token(username=user.username)
     user_info_vo = UserInfoVo(user.username, user.phone, user.avatar, user.role, user.create_time)
@@ -112,3 +121,37 @@ def check_field(key, value):
     if user:
         return Response.create_error(1, '%s重复' % key)
     return Response.create_success('check success')
+
+
+def get_login_log(username):
+    user = LocalUser.query.filter(LocalUser.username == username).first()
+    if not user:
+        return Response.create_error(NotLogin.code, NotLogin.message)
+    logs = LoginLog.query.filter(LoginLog.phone == user.phone)
+    res = []
+    for i in logs:
+        res.append(LoginLogVo(i).to_json())
+    return Response.create_success(res)
+
+
+def create_new_user(admin_user, phone, username, password):
+    # 验证是否为管理员
+    admin = LocalUser.query.filter(LocalUser.username == admin_user).first()
+    if (not admin) or admin.role != default_admin_name:
+        return Response.create_error(1, '非管理员不能进行该操作')
+    # 验证用户名和电话号码是否重复
+    resp = json.loads(check_field('username', username)[0])
+    if resp['code'] != 0:
+        return resp
+    resp = json.loads(check_field('phone', phone)[0])
+    if resp['code'] != 0:
+        return resp
+    user = LocalUser(username, generate_password_hash(password), phone, default_avatar, 'user')
+    try:
+        db_session.add(user)
+        db_session.commit()
+        new_user = LocalUser.query.filter(LocalUser.username == username).first()
+        user_info = UserInfoVo(new_user.username, new_user.phone, new_user.avatar, new_user.role, new_user.create_time)
+        return Response.create_success(user_info.to_json())
+    except Exception:
+        return Response.create_error(1, '创建用户失败')

@@ -1,4 +1,4 @@
-from anjone.utils.time_util import format_time
+from anjone.utils.common_util import format_time
 
 
 class FileInfoVo:

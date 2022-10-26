@@ -1,5 +1,3 @@
-import io
-
 from flask import Blueprint, request
 
 from anjone.service import samb_service
@@ -62,13 +60,49 @@ def back_dir():
 @login_required
 def upload_file():
     username = get_username()
-    recv_file = request.files['file']
+    recv_file = request.files.getlist('file')
     return samb_service.upload_file(username, recv_file)
 
 
+# 删除文件
 @samb_bp.route('/delete', methods=['POST'])
 @login_required
 def delete_file():
     filename = request.form['filename']
     username = get_username()
     return samb_service.delete_file(username, filename)
+
+
+# 创建文件夹
+@samb_bp.route('/create_dir', methods=['POST'])
+@login_required
+def create_dir():
+    dir_name = request.form['dir_name']
+    username = get_username()
+    return samb_service.create_dir(username, dir_name)
+
+
+# 文件重命名
+@samb_bp.route('/rename', methods=['POST'])
+@login_required
+def rename():
+    old_name = request.form['old_name']
+    new_name = request.form['new_name']
+    username = get_username()
+    return samb_service.rename(username, old_name, new_name)
+
+
+# 查看文件详情
+@samb_bp.route('/file_info/<filename>', methods=['POST', 'GET'])
+@login_required
+def get_file_info(filename):
+    username = get_username()
+    return samb_service.get_file_info(username, filename)
+
+
+# 刷新
+@samb_bp.route('refresh', methods=['POST', 'GET'])
+@login_required
+def refresh():
+    username = get_username()
+    return samb_service.refresh(username)

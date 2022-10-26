@@ -24,7 +24,6 @@ class LocalUser(Base):
         self.role = role
         self.create_time = datetime.utcnow()
         self.update_time = datetime.utcnow()
-        self.create_time.strftime()
 
     def __repr__(self):
         return f'<User {self.username}, {self.phone}, {self.avatar},{self.role}, {self.create_time}, {self.update_time}>'

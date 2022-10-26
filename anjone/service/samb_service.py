@@ -1,6 +1,7 @@
 import io
 
 from anjone.common import Response
+from anjone.models.vo.FileInfoVo import FileInfoVo
 from anjone.utils.Samb import Samb, SambService
 from flask import Response as Resp
 
@@ -11,7 +12,7 @@ VIDEO_FILES = ['mp4']
 
 def start_service(username):
     # 建立连接，并加入到连接池中
-    server = Samb('chenhuaiyi', '123456', '192.168.31.207', 'share')
+    server = Samb('chenhuaiyi', '123456', '192.168.2.192', 'share')
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')
@@ -107,31 +108,69 @@ def upload_file(username, recv_file):
     if not (username in SambService) or not SambService[username]:
         return Response.create_error(1, 'samba connect error')
     server = SambService[username]
-    # 获取文件流和文件名
-    with io.BytesIO() as file:
-        file.write(recv_file.read())
-        file.seek(0)
-        filename = recv_file.filename
-        res = server.upload_file(file, filename)
-        if res :
-            return Response.create_success(server.get_current_files_info())
-        return Response.create_error(1, "Failed to upload file")
+    # 获取文件流和文件名, flag存储未成功上传的文件名
+    flag = True
+    for i in recv_file:
+        with io.BytesIO() as file:
+            file.write(i.read())
+            file.seek(0)
+            filename = i.filename
+            if not server.upload_file(file, filename):
+                flag = False
+    if flag:
+        return Response.create_success(server.get_current_files_info())
+    return Response.create_error(1, "Failed to upload all files")
 
 
 def delete_file(username, filename):
     if not (username in SambService) or not SambService[username]:
         return Response.create_error(1, 'samba connect error')
     server = SambService[username]
-    # todo 还需要考虑删除的文件为文件夹的情况
-    # 查找是否存在该文件
-    folders = server.get_current_files()
-    flag = False
-    for i in folders:
-        if i.filename == filename:
-            flag = True
-            break
-    if flag:
-        if server.delete_file(filename):
-            return Response.create_success(server.get_current_files_info())
-        return Response.create_error(1, "Failed to delete file")
-    return Response.create_error(1, "Failed to delete file")
+    # 从字符串中拆分出文件名
+    files = filename.split(',')
+    for i in files:
+        print(server.get_current_folder())
+        file_info = server.get_file_info(i)
+        # 删除文件夹
+        if file_info.isDirectory:
+            server.delete_dir(server.get_current_folder() + i + '/')
+        # 删除文件
+        else:
+            server.delete_file(i)
+    return Response.create_success(server.get_current_files_info())
+
+
+def create_dir(username, dir_name):
+    if not (username in SambService) or not SambService[username]:
+        return Response.create_error(1, 'samba connect error')
+    server = SambService[username]
+    if server.create_dir(dir_name):
+        return Response.create_success(server.get_current_files_info())
+    return Response.create_error(1, 'Failed to create directory')
+
+
+def rename(username, old_name, new_name):
+    if not (username in SambService) or not SambService[username]:
+        return Response.create_error(1, 'samba connect error')
+    server = SambService[username]
+    info = server.get_file_info(old_name)
+    if info and server.rename(old_name, new_name):
+        return Response.create_success(server.get_current_files_info())
+    return Response.create_error(1, 'Rename failed')
+
+
+def get_file_info(username, filename):
+    if not (username in SambService) or not SambService[username]:
+        return Response.create_error(1, 'samba connect error')
+    server = SambService[username]
+    info = server.get_file_info(filename)
+    if info:
+        return Response.create_success(FileInfoVo(info).to_json())
+    return Response.create_error(1, "No information about this file")
+
+
+def refresh(username):
+    if not (username in SambService) or not SambService[username]:
+        return Response.create_error(1, 'samba connect error')
+    server = SambService[username]
+    return Response.create_success(server.get_current_files_info())

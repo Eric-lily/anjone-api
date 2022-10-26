@@ -39,6 +39,16 @@ class Samb:
         self.conn.close()
         self.coon = None
 
+    def get_current_folder(self):
+        return self.current_folder
+
+    def get_file_info(self, filename):
+        try:
+            info = self.conn.getAttributes(self.folder, self.current_folder+filename)
+            return info
+        except Exception:
+            return False
+
     def get_aside(self):
         folder_list = []
         folders = self.conn.listPath(self.folder, '/')
@@ -112,6 +122,35 @@ class Samb:
     def delete_file(self, filename):
         try:
             self.conn.deleteFiles(self.folder, self.current_folder + filename)
+            return True
+        except Exception:
+            return False
+
+    # 递归删除文件夹
+    def delete_dir(self, path):
+        for p in self.conn.listPath(self.folder, path):
+            if p.filename != '.' and p.filename != '..':
+                parent_path = path
+                if not parent_path.endswith('/'):
+                    parent_path += '/'
+                # 递归位置
+                if p.isDirectory:
+                    self.delete_dir(parent_path + p.filename)
+                else:
+                    self.conn.deleteFiles(self.folder, parent_path + p.filename)
+        # 删除掉文件夹内的文件后，再删除文件夹本身
+        self.conn.deleteDirectory(self.folder, path)
+
+    def create_dir(self, dir_name):
+        try:
+            self.conn.createDirectory(self.folder, self.current_folder + dir_name)
+            return True
+        except Exception:
+            return False
+
+    def rename(self, old_name, new_name):
+        try:
+            self.conn.rename(self.folder, self.current_folder+old_name, self.current_folder+new_name)
             return True
         except Exception:
             return False

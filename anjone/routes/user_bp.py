@@ -62,3 +62,20 @@ def reset_info():
 def get_code():
     phone = request.form['phone']
     return user_service.get_code(phone)
+
+
+@user_bp.route('/login_log', methods=['GET'])
+@login_required
+def get_login_log():
+    username = get_username()
+    return user_service.get_login_log(username)
+
+
+@user_bp.route('/new_user', methods=['POST'])
+@login_required
+def create_new_user():
+    admin_user = get_username()
+    phone = request.form['phone']
+    password = request.form['password']
+    username = request.form['username']
+    return user_service.create_new_user(admin_user, phone, username, password)

@@ -24,4 +24,5 @@ def init_db():
     from anjone.models.sqlite.LocalUser import LocalUser
     from anjone.models.sqlite.DevInfo import DevInfo
     from anjone.models.sqlite.VersionInfo import VersionInfo
+    from anjone.models.sqlite.LoginLog import LoginLog
     Base.metadata.create_all(bind=engine)

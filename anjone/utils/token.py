@@ -38,7 +38,6 @@ def login_required(view_func):
         if not username:
             return Response.create_error(NotLogin.code, NotLogin.message)
         return view_func(*args, **kwargs)
-
     return verify_token
 
 
