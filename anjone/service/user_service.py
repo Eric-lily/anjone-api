@@ -151,6 +151,7 @@ def create_new_user(admin_user, phone, username, password):
         db_session.add(user)
         db_session.commit()
         new_user = LocalUser.query.filter(LocalUser.username == username).first()
+        # todo 执行脚本创建新的samba用户
         user_info = UserInfoVo(new_user.username, new_user.phone, new_user.avatar, new_user.role, new_user.create_time)
         return Response.create_success(user_info.to_json())
     except Exception:

@@ -12,7 +12,7 @@ VIDEO_FILES = ['mp4']
 
 def start_service(username):
     # 建立连接，并加入到连接池中
-    server = Samb('chenhuaiyi', '123456', '192.168.2.192', 'share')
+    server = Samb(username, '123456', '192.168.2.192', username)
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')
