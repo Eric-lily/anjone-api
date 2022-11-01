@@ -1,6 +1,7 @@
 import io
 
 from anjone.common import Response
+from anjone.common.Constant import default_samba_pwd, default_samba_ip
 from anjone.models.vo.FileInfoVo import FileInfoVo
 from anjone.utils.Samb import Samb, SambService
 from flask import Response as Resp
@@ -12,7 +13,7 @@ VIDEO_FILES = ['mp4']
 
 def start_service(username):
     # 建立连接，并加入到连接池中
-    server = Samb(username, '123456', '192.168.2.192', username)
+    server = Samb(username, default_samba_pwd, default_samba_ip, username)
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')

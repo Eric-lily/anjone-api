@@ -1,8 +1,7 @@
-from flask import Blueprint, session, request
+from flask import Blueprint
 
-from anjone.common import Response
 from anjone.service import system_service
-from anjone.utils.token import login_required, get_username
+from anjone.utils.token import login_required
 
 system_bp = Blueprint('system', __name__, url_prefix='/system')
 

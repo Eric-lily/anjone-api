@@ -8,6 +8,9 @@ default_admin_name = 'admin'
 root_username = 'root'
 default_avatar = 'default.jpg'
 
+default_samba_pwd = '123456'
+default_samba_ip = '172.31.254.195'
+
 
 class DEV_TYPE:
     WINDOWS = 'windows PC电脑'
