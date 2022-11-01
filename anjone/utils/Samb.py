@@ -32,6 +32,7 @@ class Samb:
         try:
             self.conn.connect(self.server_ip, 139)
         except Exception as e:
+            print(e)
             return False
         return True
 
