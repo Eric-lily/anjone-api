@@ -1,4 +1,5 @@
 import json
+import os
 
 from flask import make_response, request
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,6 +11,7 @@ from anjone.database import mysql_db_session, db_session, engine
 from anjone.models.mysql.User import User
 from anjone.models.sqlite.LocalUser import LocalUser
 from anjone.models.sqlite.LoginLog import LoginLog
+from anjone.models.sqlite.SambUser import SambUser
 from anjone.models.vo.LoginLogVo import LoginLogVo
 from anjone.models.vo.UserInfoAndDevVo import UserInfoAndDevVo
 from anjone.models.vo.UserInfoVo import UserInfoVo
@@ -147,12 +149,30 @@ def create_new_user(admin_user, phone, username, password):
     if resp['code'] != 0:
         return resp
     user = LocalUser(username, generate_password_hash(password), phone, default_avatar, 'user')
+    # samb用户名暂时使用user+电话后4位尾数
+    samb_username = 'user'+phone[-4:]
+    samb_user = SambUser(phone, samb_username)
     try:
         db_session.add(user)
+        db_session.add(samb_user)
         db_session.commit()
         new_user = LocalUser.query.filter(LocalUser.username == username).first()
         # todo 执行脚本创建新的samba用户
+        print(os.system('sh /root/anjone-api/anjone-api/shell/samba_user.sh ' + samb_username))
         user_info = UserInfoVo(new_user.username, new_user.phone, new_user.avatar, new_user.role, new_user.create_time)
         return Response.create_success(user_info.to_json())
     except Exception:
         return Response.create_error(1, '创建用户失败')
+
+
+def get_users(admin_user):
+    # 验证是否为管理员
+    admin = LocalUser.query.filter(LocalUser.username == admin_user).first()
+    if (not admin) or admin.role != default_admin_name:
+        return Response.create_error(1, '非管理员不能进行该操作')
+    users = LocalUser.query.filter(LocalUser.role == 'user')
+    user_info_list = []
+    for i in users:
+        user_info = UserInfoVo(i.username, i.phone, i.avatar, i.role, i.create_time)
+        user_info_list.append(user_info.to_json())
+    return Response.create_success(user_info_list)

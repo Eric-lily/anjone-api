@@ -1,10 +1,13 @@
 import io
 
+from flask import Response as Resp
+
 from anjone.common import Response
-from anjone.common.Constant import default_samba_pwd, default_samba_ip
+from anjone.common.Constant import default_samba_ip
+from anjone.models.sqlite.LocalUser import LocalUser
+from anjone.models.sqlite.SambUser import SambUser
 from anjone.models.vo.FileInfoVo import FileInfoVo
 from anjone.utils.Samb import Samb, SambService
-from flask import Response as Resp
 
 IMAGE_TYPES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
 AUDIO_FILES = ['mp3']
@@ -13,7 +16,12 @@ VIDEO_FILES = ['mp4']
 
 def start_service(username):
     # 建立连接，并加入到连接池中
-    server = Samb(username, default_samba_pwd, default_samba_ip, username)
+    user = LocalUser.query.filter(LocalUser.username == username).first()
+    samb_user = SambUser.query.filter(SambUser.phone == user.phone).first()
+    # 判断是否创建了对应的samba用户
+    if not samb_user:
+        return Response.create_error(1, 'no samba user')
+    server = Samb(samb_user.username, samb_user.password, default_samba_ip, samb_user.username)
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')

@@ -48,3 +48,4 @@ Werkzeug==2.2.2
 WTForms==3.0.1
 WTForms-JSON==0.3.5
 zipp==3.8.1
+uwsgi==2.0.21

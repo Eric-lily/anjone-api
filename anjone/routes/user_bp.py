@@ -79,3 +79,9 @@ def create_new_user():
     password = request.form['password']
     username = request.form['username']
     return user_service.create_new_user(admin_user, phone, username, password)
+
+@user_bp.route('/get_users', methods=['GET'])
+@login_required
+def get_users():
+    admin_user = get_username()
+    return user_service.get_users(admin_user)
