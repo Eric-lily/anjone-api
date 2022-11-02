@@ -12,7 +12,7 @@ AVATAR_URL = 'http://120.78.235.195:5000/file/avatar/'
 
 default_admin_name = 'admin'
 root_username = 'root'
-default_avatar = 'default.jpg'
+default_avatar = 'default.png'
 
 default_samba_pwd = '123456'
 default_samba_ip = 'localhost'
