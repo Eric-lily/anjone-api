@@ -4,7 +4,7 @@ EXPOSE 5000
 
 WORKDIR /project/anjone-api
 
-COPY anjone-api /project/anjone-api
+COPY anjone-api /project/anjone-api/
 
 COPY test.db /
 
