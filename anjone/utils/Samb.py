@@ -8,7 +8,6 @@ from smb.SMBConnection import SMBConnection
 from anjone.models.vo.FileInfoVo import FileInfoVo
 
 SambService = {}
-lock = threading.RLock()
 
 
 # # 增加samba连接
