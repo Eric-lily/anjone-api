@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 
 from anjone.service import samb_service
+from anjone.utils.Samb import lock
 from anjone.utils.token import get_username, login_required, get_username_from_parameter
 
 samb_bp = Blueprint('samb', __name__, url_prefix='/samb')
@@ -11,7 +12,10 @@ samb_bp = Blueprint('samb', __name__, url_prefix='/samb')
 @login_required
 def start_service():
     username = get_username()
-    return samb_service.start_service(username)
+    lock.acquire()
+    res = samb_service.start_service(username)
+    lock.release()
+    return res
 
 
 # 关闭samba服务
@@ -19,7 +23,10 @@ def start_service():
 @login_required
 def stop_service():
     username = get_username()
-    return samb_service.stop_service(username)
+    lock.acquire()
+    res = samb_service.stop_service(username)
+    lock.release()
+    return res
 
 
 # 进入文件
@@ -27,7 +34,10 @@ def stop_service():
 def enter(filename):
     username = get_username_from_parameter()
     type = request.args.get('type')
-    return samb_service.enter(username, filename, type)
+    lock.acquire()
+    res = samb_service.enter(username, filename, type)
+    lock.release()
+    return res
 
 
 # 进入文件前先检查
@@ -35,7 +45,10 @@ def enter(filename):
 @login_required
 def check(filename):
     username = get_username()
-    return samb_service.check_file(username, filename)
+    lock.acquire()
+    res = samb_service.check_file(username, filename)
+    lock.release()
+    return res
 
 
 # 从绝对路径进入文件夹
@@ -44,7 +57,10 @@ def check(filename):
 def enter_abs():
     username = get_username()
     filepath = request.form['filepath']
-    return samb_service.enter_abs(username, filepath)
+    lock.acquire()
+    res = samb_service.enter_abs(username, filepath)
+    lock.release()
+    return res
 
 
 # 返回上一级文件夹
@@ -52,7 +68,10 @@ def enter_abs():
 @login_required
 def back_dir():
     username = get_username()
-    return samb_service.back_dir(username)
+    lock.acquire()
+    res = samb_service.back_dir(username)
+    lock.release()
+    return res
 
 
 # 上传文件
@@ -61,7 +80,10 @@ def back_dir():
 def upload_file():
     username = get_username()
     recv_file = request.files.getlist('file')
-    return samb_service.upload_file(username, recv_file)
+    lock.acquire()
+    res = samb_service.upload_file(username, recv_file)
+    lock.release()
+    return res
 
 
 # 删除文件
@@ -70,7 +92,10 @@ def upload_file():
 def delete_file():
     filename = request.form['filename']
     username = get_username()
-    return samb_service.delete_file(username, filename)
+    lock.acquire()
+    res = samb_service.delete_file(username, filename)
+    lock.release()
+    return res
 
 
 # 创建文件夹
@@ -79,7 +104,10 @@ def delete_file():
 def create_dir():
     dir_name = request.form['dir_name']
     username = get_username()
-    return samb_service.create_dir(username, dir_name)
+    lock.acquire()
+    res = samb_service.create_dir(username, dir_name)
+    lock.release()
+    return res
 
 
 # 文件重命名
@@ -89,7 +117,10 @@ def rename():
     old_name = request.form['old_name']
     new_name = request.form['new_name']
     username = get_username()
-    return samb_service.rename(username, old_name, new_name)
+    lock.acquire()
+    res = samb_service.rename(username, old_name, new_name)
+    lock.release()
+    return res
 
 
 # 查看文件详情
@@ -97,7 +128,10 @@ def rename():
 @login_required
 def get_file_info(filename):
     username = get_username()
-    return samb_service.get_file_info(username, filename)
+    lock.acquire()
+    res = samb_service.get_file_info(username, filename)
+    lock.release()
+    return res
 
 
 # 刷新
@@ -105,4 +139,7 @@ def get_file_info(filename):
 @login_required
 def refresh():
     username = get_username()
-    return samb_service.refresh(username)
+    lock.acquire()
+    res = samb_service.refresh(username)
+    lock.release()
+    return res
