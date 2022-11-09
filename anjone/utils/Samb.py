@@ -28,6 +28,7 @@ def get_conn(username):
             conn = SambService[username]
             return conn
     except Exception:
+        lock.release()
         return None
 
 
@@ -46,7 +47,7 @@ def has_conn(username):
     res = False
     lock.acquire()
     try:
-        if username in SambService:
+        if username in SambService and SambService[username]:
             res = True
     finally:
         lock.release()
@@ -82,7 +83,6 @@ class Samb:
 
     def disconnect(self):
         self.conn.close()
-        lock.release()
         self.coon = None
 
     def get_current_folder(self):
@@ -113,7 +113,6 @@ class Samb:
         for i in folders:
             folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
-        lock.release()
         return reset_folders(folder_list)
 
     def enter_dir(self, dirname):

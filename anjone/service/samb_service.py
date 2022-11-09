@@ -7,7 +7,7 @@ from anjone.common.Constant import default_samba_ip
 from anjone.models.sqlite.LocalUser import LocalUser
 from anjone.models.sqlite.SambUser import SambUser
 from anjone.models.vo.FileInfoVo import FileInfoVo
-from anjone.utils.Samb import Samb, SambService, del_conn, set_conn, has_conn, get_conn
+from anjone.utils.Samb import Samb, SambService, del_conn, set_conn, has_conn, get_conn, lock
 
 IMAGE_TYPES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
 AUDIO_FILES = ['mp3']
@@ -25,8 +25,7 @@ def start_service(username):
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')
-    # if username in SambService:
-    #     del SambService[username]
+    # 删除已有连接,设置新的连接
     del_conn(username)
     set_conn(username, server)
     # 查询个人目录下的主文件夹
@@ -37,42 +36,55 @@ def start_service(username):
 def stop_service(username):
     # 断开连接, 事访内存
     if has_conn(username):
-        # SambService[username].disconnect()
         get_conn(username).disconnect()
         del_conn(username)
+        # 释放锁
+        lock.release()
     return Response.create_success('samba disconnect success')
 
 
 def enter(username, filename, type):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
     # todo 还需考虑如果filename是文件的情况
-    server = SambService[username]
+    server = get_conn(username)
     if type == 'dir':
         folder_list = server.enter_dir(filename)
+        # 释放锁
+        lock.release()
         return Response.create_success(folder_list)
     elif type == 'image':
         bytes = server.get_bytes(filename)
         resp = Resp(bytes, mimetype='image/*')
+        # 释放锁
+        lock.release()
         return resp
     elif type == 'audio':
         bytes = server.get_bytes(filename)
         resp = Resp(bytes, mimetype='audio/mpeg')
+        # 释放锁
+        lock.release()
         return resp
     elif type == 'video':
         bytes = server.get_bytes(filename)
         resp = Resp(bytes, mimetype='video/mp4')
+        # 释放锁
+        lock.release()
         return resp
     else:
+        # 释放锁
+        lock.release()
         return Response.create_success('This file type is not currently supported')
 
 
 def check_file(username, filename):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
         # todo 还需考虑如果filename是文件的情况
-    server = SambService[username]
+    server = get_conn(username)
     files = server.get_current_files()
+    # 释放锁
+    lock.release()
     for i in files:
         if i.filename == filename:
             # 文件夹
@@ -93,18 +105,23 @@ def check_file(username, filename):
 
 
 def enter_abs(username, filepath):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     # todo 对于非文件夹的文件如何处理
-    return Response.create_success(server.enter_abs_file(filepath))
+    folders = server.enter_abs_file(filepath)
+    # 释放锁
+    lock.release()
+    return Response.create_success(folders)
 
 
 def back_dir(username):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     folder_list = server.back_dir()
+    # 释放锁
+    lock.release()
     if not folder_list:
         return Response.create_error(1, 'you can not back now')
     return Response.create_success(folder_list)
@@ -116,9 +133,9 @@ def allowed_files(file_types, filename):
 
 
 def upload_file(username, recv_file):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     # 获取文件流和文件名, flag存储未成功上传的文件名
     flag = True
     for i in recv_file:
@@ -129,18 +146,22 @@ def upload_file(username, recv_file):
             if not server.upload_file(file, filename):
                 flag = False
     if flag:
-        return Response.create_success(server.get_current_files_info())
+        folders = server.get_current_files_info()
+        # 释放锁
+        lock.release()
+        return Response.create_success(folders)
+    # 释放锁
+    lock.release()
     return Response.create_error(1, "Failed to upload all files")
 
 
 def delete_file(username, filename):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     # 从字符串中拆分出文件名
     files = filename.split(',')
     for i in files:
-        print(server.get_current_folder())
         file_info = server.get_file_info(i)
         # 删除文件夹
         if file_info.isDirectory:
@@ -148,36 +169,51 @@ def delete_file(username, filename):
         # 删除文件
         else:
             server.delete_file(i)
+    # 释放锁
+    lock.release()
     return Response.create_success(server.get_current_files_info())
 
 
 def create_dir(username, dir_name):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     if server.create_dir(dir_name):
-        return Response.create_success(server.get_current_files_info())
+        folders = server.get_current_files_info()
+        # 释放锁
+        lock.release()
+        return Response.create_success(folders)
+    # 释放锁
+    lock.release()
     return Response.create_error(1, 'Failed to create directory')
 
 
 def rename(username, old_name, new_name):
-    if not (username in SambService) or not SambService[username]:
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     info = server.get_file_info(old_name)
     if info and server.rename(old_name, new_name):
-        return Response.create_success(server.get_current_files_info())
+        folders = server.get_current_files_info()
+        # 释放锁
+        lock.release()
+        return Response.create_success(folders)
+    # 释放锁
+    lock.release()
     return Response.create_error(1, 'Rename failed')
 
 
 def get_file_info(username, filename):
-    if not (username in SambService) or not SambService[username]:
-
+    if has_conn(username):
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
     info = server.get_file_info(filename)
     if info:
+        # 释放锁
+        lock.release()
         return Response.create_success(FileInfoVo(info).to_json())
+    # 释放锁
+    lock.release()
     return Response.create_error(1, "No information about this file")
 
 
@@ -185,5 +221,7 @@ def refresh(username):
     if not has_conn(username):
         # 测试
         return Response.create_error(1, 'samba connect error')
-    server = SambService[username]
+    server = get_conn(username)
+    # 释放锁
+    lock.release()
     return Response.create_success(server.get_current_files_info())
