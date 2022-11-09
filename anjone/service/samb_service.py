@@ -7,7 +7,7 @@ from anjone.common.Constant import default_samba_ip
 from anjone.models.sqlite.LocalUser import LocalUser
 from anjone.models.sqlite.SambUser import SambUser
 from anjone.models.vo.FileInfoVo import FileInfoVo
-from anjone.utils.Samb import Samb, SambService
+from anjone.utils.Samb import Samb, SambService, del_conn, set_conn, has_conn, get_conn
 
 IMAGE_TYPES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
 AUDIO_FILES = ['mp3']
@@ -25,9 +25,10 @@ def start_service(username):
     is_conn = server.connect()
     if not is_conn:
         return Response.create_error(1, 'samba connect error')
-    if username in SambService:
-        del SambService[username]
-    SambService[username] = server
+    # if username in SambService:
+    #     del SambService[username]
+    del_conn(username)
+    set_conn(username, server)
     # 查询个人目录下的主文件夹
     folder_list = server.get_aside()
     return Response.create_success(folder_list)
@@ -35,9 +36,10 @@ def start_service(username):
 
 def stop_service(username):
     # 断开连接, 事访内存
-    if (username in SambService) and SambService[username]:
-        SambService[username].disconnect()
-        del SambService[username]
+    if has_conn(username):
+        # SambService[username].disconnect()
+        get_conn(username).disconnect()
+        del_conn(username)
     return Response.create_success('samba disconnect success')
 
 
@@ -170,6 +172,7 @@ def rename(username, old_name, new_name):
 
 def get_file_info(username, filename):
     if not (username in SambService) or not SambService[username]:
+
         return Response.create_error(1, 'samba connect error')
     server = SambService[username]
     info = server.get_file_info(filename)
@@ -179,7 +182,8 @@ def get_file_info(username, filename):
 
 
 def refresh(username):
-    if not (username in SambService) or not SambService[username]:
+    if not has_conn(username):
+        # 测试
         return Response.create_error(1, 'samba connect error')
     server = SambService[username]
     return Response.create_success(server.get_current_files_info())

@@ -1,12 +1,56 @@
 import base64
 import io
 import os
+import threading
 
 from smb.SMBConnection import SMBConnection
 
 from anjone.models.vo.FileInfoVo import FileInfoVo
 
 SambService = {}
+lock = threading.RLock()
+
+
+# 增加samba连接
+def set_conn(username, conn):
+    lock.acquire()
+    try:
+        SambService[username] = conn
+    finally:
+        lock.release()
+
+
+# 获取samba连接
+def get_conn(username):
+    lock.acquire()
+    try:
+        if username in SambService:
+            conn = SambService[username]
+            return conn
+    except Exception:
+        return None
+
+
+# 删除samba连接
+def del_conn(username):
+    lock.acquire()
+    try:
+        if username in SambService:
+            del SambService[username]
+    finally:
+        lock.release()
+
+
+# 判断是否由samba连接存在
+def has_conn(username):
+    res = False
+    lock.acquire()
+    try:
+        if username in SambService:
+            res = True
+    finally:
+        lock.release()
+        return res
 
 
 def reset_folders(folders):
@@ -38,6 +82,7 @@ class Samb:
 
     def disconnect(self):
         self.conn.close()
+        lock.release()
         self.coon = None
 
     def get_current_folder(self):
@@ -45,7 +90,7 @@ class Samb:
 
     def get_file_info(self, filename):
         try:
-            info = self.conn.getAttributes(self.folder, self.current_folder+filename)
+            info = self.conn.getAttributes(self.folder, self.current_folder + filename)
             return info
         except Exception:
             return False
@@ -68,6 +113,7 @@ class Samb:
         for i in folders:
             folder = FileInfoVo(i).to_json()
             folder_list.append(folder)
+        lock.release()
         return reset_folders(folder_list)
 
     def enter_dir(self, dirname):
@@ -151,7 +197,7 @@ class Samb:
 
     def rename(self, old_name, new_name):
         try:
-            self.conn.rename(self.folder, self.current_folder+old_name, self.current_folder+new_name)
+            self.conn.rename(self.folder, self.current_folder + old_name, self.current_folder + new_name)
             return True
         except Exception:
             return False
