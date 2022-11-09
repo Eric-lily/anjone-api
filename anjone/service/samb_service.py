@@ -1,17 +1,19 @@
 import io
 
-from flask import Response as Resp
+from flask import Response as Resp, g
 
 from anjone.common import Response
 from anjone.common.Constant import default_samba_ip
 from anjone.models.sqlite.LocalUser import LocalUser
 from anjone.models.sqlite.SambUser import SambUser
 from anjone.models.vo.FileInfoVo import FileInfoVo
-from anjone.utils.Samb import Samb, SambService, lock
+from anjone.utils.Samb import Samb
 
 IMAGE_TYPES = ['jpg', 'png', 'jpeg', 'gif', 'webp']
 AUDIO_FILES = ['mp3']
 VIDEO_FILES = ['mp4']
+
+SambService = {}
 
 
 def start_service(username):
@@ -29,6 +31,7 @@ def start_service(username):
     if username in SambService and SambService[username]:
         del SambService[username]
     SambService[username] = server
+    g.test = 'test'
     # 查询个人目录下的主文件夹
     folder_list = server.get_aside()
     return Response.create_success(folder_list)

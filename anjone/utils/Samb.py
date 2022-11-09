@@ -1,56 +1,10 @@
 import base64
 import io
 import os
-import threading
 
 from smb.SMBConnection import SMBConnection
 
 from anjone.models.vo.FileInfoVo import FileInfoVo
-
-SambService = {}
-
-
-# # 增加samba连接
-# def set_conn(username, conn):
-#     lock.acquire()
-#     try:
-#         SambService[username] = conn
-#     finally:
-#         lock.release()
-#
-#
-# # 获取samba连接
-# def get_conn(username):
-#     lock.acquire()
-#     try:
-#         if username in SambService:
-#             conn = SambService[username]
-#             return conn
-#     except Exception:
-#         lock.release()
-#         return None
-#
-#
-# # 删除samba连接
-# def del_conn(username):
-#     lock.acquire()
-#     try:
-#         if username in SambService:
-#             del SambService[username]
-#     finally:
-#         lock.release()
-#
-#
-# # 判断是否由samba连接存在
-# def has_conn(username):
-#     res = False
-#     lock.acquire()
-#     try:
-#         if username in SambService and SambService[username]:
-#             res = True
-#     finally:
-#         lock.release()
-#         return res
 
 
 def reset_folders(folders):
