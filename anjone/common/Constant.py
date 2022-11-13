@@ -15,7 +15,7 @@ root_username = 'root'
 default_avatar = 'default.png'
 
 default_samba_pwd = '123456'
-# default_samba_ip = '192.168.2.132'
+# default_samba_ip = '192.168.2.192'
 default_samba_ip = 'localhost'
 
 
