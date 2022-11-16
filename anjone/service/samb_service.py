@@ -66,7 +66,9 @@ def enter(username, filename, type):
         resp = Resp(bytes, mimetype='video/mp4')
         return resp
     else:
-        return Response.create_success('This file type is not currently supported')
+        bytes = server.get_bytes(filename)
+        resp = Resp(bytes, mimetype='application/octet-stream')
+        return resp
 
 
 def check_file(username, filename):

@@ -1,6 +1,7 @@
 import psutil
 
 from anjone.common import Response
+from anjone.common.Constant import IP_DEV
 from anjone.models.sqlite.DevInfo import DevInfo
 from anjone.models.sqlite.VersionInfo import VersionInfo
 from anjone.models.vo.DiskUsageVo import DiskUsage
@@ -38,7 +39,7 @@ def get_version():
 
 def get_address():
     # todo 网络信息从驱动层获得
-    ip_data = get_ip('WLAN')
+    ip_data = get_ip(IP_DEV)
     address_data = {
         'mac': ip_data['mac'],
         'ipv4': ip_data['ipv4'],

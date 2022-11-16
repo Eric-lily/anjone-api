@@ -4,11 +4,19 @@
 #
 # AVATAR_URL = 'http://192.168.2.213:5000/file/avatar/'
 
-NOTICE_LOG = '/root/anjone-api/anjone-api/notice/notice.log'
-AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
-UPLOAD_AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
+# NOTICE_LOG = '/root/anjone-api/anjone-api/notice/notice.log'
+# AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
+# UPLOAD_AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
 
-AVATAR_URL = 'http://120.78.235.195:5000/file/avatar/'
+# AVATAR_URL = 'http://120.78.235.195:5000/file/avatar/'
+
+NOTICE_LOG = '/home/firefly/project/anjone-api/anjone-api/notice/notice.log'
+AVATAR_PATH = '/home/firefly/project/anjone-api/anjone-api/avatarfile/'
+UPLOAD_AVATAR_PATH = '/home/firefly/project/anjone-api/anjone-api/avatarfile/'
+
+AVATAR_URL = 'http://47.98.34.218:5000/file/avatar/'
+
+IP_DEV = 'wlan0'
 
 default_admin_name = 'admin'
 root_username = 'root'
