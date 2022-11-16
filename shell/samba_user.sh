@@ -14,6 +14,6 @@ sudo chmod 777 /home/$1/我的影视
 
 (echo 123456; echo 123456) |sudo smbpasswd -a $1
 
-echo -e "[$1]\n  comment=samba folder\n  path=/home/$1\n  browseable=yes\n  writable=yes\n  valid users=$1\n  available=yes\n  public=yes\n" >> /etc/samba/smb.conf
+sudo echo -e "[$1]\n  comment=samba folder\n  path=/home/$1\n  browseable=yes\n  writable=yes\n  valid users=$1\n  available=yes\n  public=yes\n" >> /etc/samba/smb.conf
 
 sudo systemctl reload smbd

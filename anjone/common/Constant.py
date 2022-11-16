@@ -18,6 +18,7 @@ default_samba_pwd = '123456'
 # default_samba_ip = '192.168.2.192'
 default_samba_ip = 'localhost'
 
+samba_shell = '/home/firefly/project/anjone-api/anjone-api/shell/samba_user.sh'
 
 class DEV_TYPE:
     WINDOWS = 'windows PC电脑'

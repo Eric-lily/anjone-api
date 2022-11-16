@@ -5,7 +5,7 @@ from flask import make_response, request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from anjone.common import Response
-from anjone.common.Constant import default_admin_name, root_username, default_avatar
+from anjone.common.Constant import default_admin_name, root_username, default_avatar, samba_shell
 from anjone.common.Response import NotLogin
 from anjone.database import mysql_db_session, db_session, engine
 from anjone.models.mysql.User import User
@@ -158,7 +158,7 @@ def create_new_user(admin_user, phone, username, password):
         db_session.commit()
         new_user = LocalUser.query.filter(LocalUser.username == username).first()
         # todo 执行脚本创建新的samba用户
-        print(os.system('sh /root/anjone-api/anjone-api/shell/samba_user.sh ' + samb_username))
+        print(os.system('sudo sh ' + samba_shell + ' ' + samb_username))
         user_info = UserInfoVo(new_user.username, new_user.phone, new_user.avatar, new_user.role, new_user.create_time)
         return Response.create_success(user_info.to_json())
     except Exception:

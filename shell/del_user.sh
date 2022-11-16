@@ -1,6 +1,6 @@
-userdel -r $1 > /dev/null
+sudo userdel -r $1 > /dev/null
 
 # shellcheck disable=SC2115
-rm -rf /home/$1
+sudo rm -rf /home/$1
 
-pdbedit -x $1
+sudo pdbedit -x $1
