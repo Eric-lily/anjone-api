@@ -77,7 +77,7 @@ async def system_data(websocket, path):
 			await asyncio.sleep(3)
 
 
-start_server = websockets.serve(system_data, '0.0.0.0', 8081)
+start_server = websockets.serve(system_data, '0.0.0.0', 8247)
 
 tasks = [
 	cpu_usage(), men_usage(), net_io(), start_server

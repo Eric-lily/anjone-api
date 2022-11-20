@@ -1,15 +1,18 @@
+# 本地
 # NOTICE_LOG = 'D:\\github\\flask_project\\notice\\notice.log'
 # AVATAR_PATH = 'D:\\github\\flask_project\\avatarfile\\'
 # UPLOAD_AVATAR_PATH = 'D:\\github\\flask_project\\avatarfile\\'
 #
-# AVATAR_URL = 'http://192.168.2.213:5000/file/avatar/'
+# AVATAR_URL = 'http://192.168.2.124:5000/file/avatar/'
 
+# 服务器
 # NOTICE_LOG = '/root/anjone-api/anjone-api/notice/notice.log'
 # AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
 # UPLOAD_AVATAR_PATH = '/root/anjone-api/anjone-api/avatarfile/'
 
 # AVATAR_URL = 'http://120.78.235.195:5000/file/avatar/'
 
+# 板子
 NOTICE_LOG = '/home/firefly/project/anjone-api/anjone-api/notice/notice.log'
 AVATAR_PATH = '/home/firefly/project/anjone-api/anjone-api/avatarfile/'
 UPLOAD_AVATAR_PATH = '/home/firefly/project/anjone-api/anjone-api/avatarfile/'

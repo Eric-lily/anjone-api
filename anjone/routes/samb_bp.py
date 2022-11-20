@@ -106,3 +106,15 @@ def get_file_info(filename):
 def refresh():
     username = get_username()
     return samb_service.refresh(username)
+
+
+# 排序
+@samb_bp.route('order', methods=['GET'])
+@login_required
+def order():
+    order_by = request.args.get('order_by')
+    seq = request.args.get('seq')
+    username = get_username()
+    if len(seq) == 0:
+        return samb_service.refresh(username)
+    return samb_service.order(username, order_by, seq)

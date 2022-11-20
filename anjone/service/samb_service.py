@@ -1,4 +1,5 @@
 import io
+import operator
 
 from flask import Response as Resp, g
 
@@ -192,3 +193,16 @@ def refresh(username):
         return Response.create_error(1, 'samba connect error')
     server = SambService[username]
     return Response.create_success(server.get_current_files_info())
+
+
+def order(username, order_by, seq):
+    if not (username in SambService) or not SambService[username]:
+        # 测试
+        return Response.create_error(1, 'samba connect error')
+    server = SambService[username]
+    folders = server.get_current_files_info()
+    reserve = True
+    if seq == 'ascend':
+        reserve = False
+    sort_folders = sorted(folders, key=operator.itemgetter(order_by), reverse=reserve)
+    return Response.create_success(sort_folders)
