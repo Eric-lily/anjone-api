@@ -80,6 +80,7 @@ def create_new_user():
     username = request.form['username']
     return user_service.create_new_user(admin_user, phone, username, password)
 
+
 @user_bp.route('/get_users', methods=['GET'])
 @login_required
 def get_users():

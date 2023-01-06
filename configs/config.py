@@ -21,7 +21,7 @@ class ProductionConfig(Config):
 
 
 config = {
-    'default': ProductionConfig
+    'default': DevelopmentConfig
 }
 
 cache_config = {

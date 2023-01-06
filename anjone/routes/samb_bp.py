@@ -23,7 +23,7 @@ def stop_service():
 
 
 # 进入文件
-@samb_bp.route('/enter/<filename>', methods=['POST', 'GET'])
+@samb_bp.route('/enter/<path:filename>', methods=['POST', 'GET'])
 def enter(filename):
     username = get_username_from_parameter()
     type = request.args.get('type')
@@ -118,3 +118,11 @@ def order():
     if len(seq) == 0:
         return samb_service.refresh(username)
     return samb_service.order(username, order_by, seq)
+
+
+# 直接获取媒体文件
+@samb_bp.route('enter_media_file/<path:filepath>', methods=['GET'])
+def enter_media_file(filepath):
+    username = get_username_from_parameter()
+    type = request.args.get('type')
+    return samb_service.enter_media_file(username, filepath, type)

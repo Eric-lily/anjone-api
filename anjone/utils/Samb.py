@@ -153,3 +153,9 @@ class Samb:
             return True
         except Exception:
             return False
+
+    def enter_media_file(self, filepath):
+        with io.BytesIO() as file:
+            self.conn.retrieveFile(self.folder, os.path.join('/', filepath), file)
+            file.seek(0)
+            return file.read()

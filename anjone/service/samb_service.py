@@ -1,4 +1,5 @@
 import io
+import json
 import operator
 
 from flask import Response as Resp, g
@@ -32,7 +33,6 @@ def start_service(username):
     if username in SambService and SambService[username]:
         del SambService[username]
     SambService[username] = server
-    g.test = 'test'
     # 查询个人目录下的主文件夹
     folder_list = server.get_aside()
     return Response.create_success(folder_list)
@@ -206,3 +206,25 @@ def order(username, order_by, seq):
         reserve = False
     sort_folders = sorted(folders, key=operator.itemgetter(order_by), reverse=reserve)
     return Response.create_success(sort_folders)
+
+
+def enter_media_file(username, filepath, type):
+    # 单独访问媒体文件时，可能会出现samba连接未开启的情况，此时我们需要开启samba连接
+    if not (username in SambService) or not SambService[username]:
+        resp = start_service(username)
+        json_resp = json.loads(resp[0])
+        if json_resp['code'] == 1:
+            return resp
+    server = SambService[username]
+    if type == 'audio':
+        bytes = server.enter_media_file(filepath)
+        resp = Resp(bytes, mimetype='audio/mpeg')
+        return resp
+    elif type == 'video':
+        bytes = server.enter_media_file(filepath)
+        resp = Resp(bytes, mimetype='video/mp4')
+        return resp
+    else:
+        bytes = server.enter_media_file(filepath)
+        resp = Resp(bytes, mimetype='application/octet-stream')
+        return resp

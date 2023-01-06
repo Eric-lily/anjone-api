@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask import Response as Resp
 
 from anjone.common import Response
-from anjone.common.Constant import AVATAR_PATH
+from anjone.common.Constant import AVATAR_PATH, MUSIC_IMAGE_PATH, VIDEO_IMAGE_PATH
 from anjone.service import file_service
 from anjone.utils.token import get_username, login_required
 
@@ -31,6 +31,22 @@ def upload_avatar():
     if avatar and allowed_files(IMAGE_FILES, avatar.filename):
         return file_service.upload_avatar(avatar, username)
     return Response.create_error('1', '文件为空, 或者格式有误')
+
+
+@file_bp.route('/music/<filename>')
+def music_image(filename):
+    with open(MUSIC_IMAGE_PATH + filename, 'rb') as f:
+        image = f.read()
+        resp = Resp(image, mimetype='image/*')
+    return resp
+
+
+@file_bp.route('/video/<filename>')
+def video_image(filename):
+    with open(VIDEO_IMAGE_PATH + filename, 'rb') as f:
+        image = f.read()
+        resp = Resp(image, mimetype='image/*')
+    return resp
 
 
 def allowed_files(file_types, filename):

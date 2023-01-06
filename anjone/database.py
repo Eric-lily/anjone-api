@@ -26,4 +26,6 @@ def init_db():
     from anjone.models.sqlite.VersionInfo import VersionInfo
     from anjone.models.sqlite.LoginLog import LoginLog
     from anjone.models.sqlite.SambUser import SambUser
+    from anjone.models.sqlite.Music import Music
+    from anjone.models.sqlite.Video import Video
     Base.metadata.create_all(bind=engine)

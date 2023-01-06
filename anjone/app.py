@@ -52,8 +52,10 @@ def configure_blueprints(app):
     from anjone.routes.notice_bp import notice_bp
     from anjone.routes.file_bp import file_bp
     from anjone.routes.samb_bp import samb_bp
+    from anjone.routes.media_bp import media_bp
     app.register_blueprint(user_bp)
     app.register_blueprint(system_bp)
     app.register_blueprint(notice_bp)
     app.register_blueprint(file_bp)
     app.register_blueprint(samb_bp)
+    app.register_blueprint(media_bp)
